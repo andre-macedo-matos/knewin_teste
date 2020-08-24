@@ -1,43 +1,81 @@
 package br.com.knewin.teste;
 
-import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Scanner;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+import br.com.knewin.teste.model.HomePage;
+import br.com.knewin.teste.model.NewsPage;
 
 public class Execute {
 
+	private static final String CHROMEDRIVER = ".\\chromedriver.exe";
+	private static final String HEADLESS_ARGUMENT = "--headless";
+	private static final String SYSTEM_WEBDRIVER_PROPERTY = "webdriver.chrome.driver";
+
+	public static final String URL = "https://www.infomoney.com.br/mercados/";
+
 	public static void main(String[] args) {
-		System.setProperty("webdriver.chrome.driver", "D:\\Java\\workspace_knewin_teste\\teste\\chromedriver.exe");
-		WebDriver driver = new ChromeDriver();
-		
-		String homeURL = "https://www.infomoney.com.br/mercados/";
-		driver.get(homeURL);
-		List<WebElement> lastNewsElements = driver.findElements(By.xpath("//div[@id='infiniteScroll']//div[contains(@class, 'img-container')]/a"));
-		List<String> newsURLList = new ArrayList<String>();
-		for (WebElement webElement : lastNewsElements) {
-			String newsURL = webElement.getAttribute("href");
-			newsURLList.add(newsURL);
-		}
-		
-		for (String newsURL : newsURLList) {
-			driver.get(newsURL);
-			WebElement newsHeader = driver.findElement(By.xpath("/html/body/div[4]/article/div[1]/div/div"));
-			System.out.println(newsHeader.findElement(By.className("page-title-1")).getText());
-			System.out.println(newsURL);
-			System.out.println(newsHeader.findElement(By.className("article-lead")).getText());
-			System.out.println(newsHeader.findElement(By.className("author-name")).getText());
-		}
-		
+		Scanner scanner = new Scanner(System.in);
+		WebDriver driver = getDriver();
+
 		try {
-			driver.close();
-			driver.quit();
+			int quantityOfNews = 0;
+			do {
+				driver.get(URL);
+				System.out.println("Informe quantidade de notícias para coletar, ou \"0\" para encerrar: ");
+				quantityOfNews = scanner.nextInt();
+				
+				HomePage homePage = new HomePage(driver);
+				NewsPage newsPage = new NewsPage(driver);
+				
+				List<String> newsURLList = homePage.getLastNewsUrls();
+				
+				if( quantityOfNews > newsURLList.size()) {
+					// newsURLList = loadMoreNews(quantityOfNews, homePage, newsURLList);
+					break;
+				}
+
+				newsPage.printNews(newsURLList, quantityOfNews);
+			} while (quantityOfNews != 0);
+
+			System.out.println("Encerrando aplicação!\nObrigado por utilizar!!!");
 		} catch (NullPointerException e) {
 			System.out.println("Váriavel está nula neste ponto!!!");
+		} catch (InputMismatchException e) {
+			System.out.println("Por favor, informe um valor numérico!!!");
+		} finally {
+			scanner.close();
+			driver.close();
+			driver.quit();
 		}
+
+	}
+
+	private static List<String> loadMoreNews(int quantityOfNews, List<String> newsURLList) {
+		WebDriver driver = getDriver();
+		HomePage homePage = new HomePage(driver);
+		while (quantityOfNews > newsURLList.size()) {
+			homePage.loadMoreNews();
+			newsURLList = homePage.getLastNewsUrls();
+		}
+		return newsURLList;
+	}
+
+	public static WebDriver getDriver() {
+		System.setProperty(SYSTEM_WEBDRIVER_PROPERTY, CHROMEDRIVER);
+
+		ChromeOptions chromeOptions = new ChromeOptions();
+		chromeOptions.addArguments(HEADLESS_ARGUMENT);
+
+		WebDriver driver = new ChromeDriver(chromeOptions);
+		driver.get(URL);
+
+		return driver;
 	}
 
 }
