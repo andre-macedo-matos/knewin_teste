@@ -10,7 +10,7 @@ import org.openqa.selenium.WebElement;
 
 public class NewsPage {
 
-	private static final String NEWS_CONTENT_PUBLICITY_TERM = "PUBLICIDADE";
+	public static final String NEWS_CONTENT_PUBLICITY_TERM = "PUBLICIDADE";
 	private static final String NEWS_DATE_FORMATED = "dd/MM/yyyy HH:mm";
 	private static final String NEWS_DATE_ATTRIBUTE = "datetime";
 
@@ -29,7 +29,6 @@ public class NewsPage {
 
 	public void printNews(List<String> newsURLList) {
 		for (String newsURL : newsURLList) {
-			driver.get(newsURL);
 			System.out.println(getNews(newsURL));
 		}
 	}
@@ -37,12 +36,13 @@ public class NewsPage {
 	public void printNews(List<String> newsURLList, int quantity) {
 		for (int i = 0; i < quantity; i++) {
 			String url = newsURLList.get(i);
-			driver.get(url);
 			System.out.println(getNews(url));
 		}
 	}
 
 	public String getNews(String newsURL) {
+		this.driver.get(newsURL);
+		
 		WebElement newsHeader = driver.findElement(newsHeaderBy);
 		WebElement newsDate = newsHeader.findElement(newsDateBy);
 		WebElement newsContent = driver.findElement(newsContentBy);
@@ -61,7 +61,8 @@ public class NewsPage {
 
 		int beginIndex = 0;
 		int lastIndexOf = content.lastIndexOf("\n");
-		content = content.substring(beginIndex, lastIndexOf).replaceAll(NEWS_CONTENT_PUBLICITY_TERM, "")
+		content = content.substring(beginIndex, lastIndexOf)
+				.replaceAll(NEWS_CONTENT_PUBLICITY_TERM, "")
 				.replaceAll("\n", "");
 		return content;
 	}

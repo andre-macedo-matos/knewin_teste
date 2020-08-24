@@ -7,12 +7,13 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class HomePage {
 	
-	public static final int QUANTITY_OF_LOADED_NEWS = 10;
+	public static final int INITIAL_QUANTITY_OF_LOADED_NEWS = 10;
 	private static final String LAST_LOADED_NEWS_XPATH = "/html/body/div[4]/div[4]/div/div/div";
 	
 	private By lastNewsBy = By.xpath("//div[@id='infiniteScroll']//div[contains(@class, 'img-container')]/a");
@@ -44,15 +45,19 @@ public class HomePage {
 		this.lastNewsUrls = lastNewsUrls;
 	}
 
-	public void loadMoreNews() {
+	public HomePage loadMoreNews() {
 		this.driver.manage().window().setPosition(this.getLoadMoreButton().getLocation());
 		this.driver.manage().window().fullscreen();
 		
-		int quantityOfLoadedNews = this.getLastNewsUrls().size() + QUANTITY_OF_LOADED_NEWS;
-		By lastLoadedNewsBy = By.xpath(LAST_LOADED_NEWS_XPATH + "[" + quantityOfLoadedNews + "]");
+		int finalQuantityOfLoadedNews = this.getLastNewsUrls().size() + INITIAL_QUANTITY_OF_LOADED_NEWS;
+		By lastLoadedNewsBy = By.xpath(LAST_LOADED_NEWS_XPATH + "[" + finalQuantityOfLoadedNews + "]");
 		
-		this.getLoadMoreButton().click();
+		Actions actions = new Actions(this.driver);
+		actions.click(this.getLoadMoreButton());
+		
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10).getSeconds());
 		wait.until(ExpectedConditions.presenceOfElementLocated(lastLoadedNewsBy));
+		
+		return this;
 	}
 }
