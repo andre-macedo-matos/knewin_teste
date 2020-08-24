@@ -20,7 +20,7 @@ public class HomePage {
 	}
 	
 	public WebElement getLoadMoreButton() {
-		return this.driver.findElement(loadMoreButtonBy);
+		return this.driver.findElement(this.loadMoreButtonBy);
 	}
 
 	public List<String> getLastNewsUrls() {
@@ -36,5 +36,9 @@ public class HomePage {
 
 	public void setLastNewsUrls(List<String> lastNewsUrls) {
 		this.lastNewsUrls = lastNewsUrls;
+	}
+
+	public void setLoadMoreButtonBy(By loadMoreButtonBy) {
+		this.loadMoreButtonBy = loadMoreButtonBy;
 	}
 }
