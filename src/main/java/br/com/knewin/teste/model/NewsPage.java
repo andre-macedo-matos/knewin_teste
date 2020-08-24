@@ -27,33 +27,42 @@ public class NewsPage {
 		this.driver = driver;
 	}
 
-	public void getNews(List<String> newsURLList) {
+	public void printNews(List<String> newsURLList) {
 		for (String newsURL : newsURLList) {
 			driver.get(newsURL);
-			WebElement newsHeader = driver.findElement(newsHeaderBy);
-			
-			System.out.println(newsURL);
-			System.out.println(newsHeader.findElement(newsTitleBy).getText());
-			System.out.println(newsHeader.findElement(newsSubTitleBy).getText());
-			System.out.println(newsHeader.findElement(newsAuthorBy).getText());
-			
-			WebElement newsDate = newsHeader.findElement(newsDateBy);
-			System.out.println(getFormatedNewsDateTime(newsDate));
-			
-			WebElement newsContent = driver.findElement(newsContentBy);
-			System.out.println(getFormatedNewsContent(newsContent) + "\n");
-			break;
+			System.out.println(getNews(newsURL));
 		}
+	}
+
+	public void printNews(List<String> newsURLList, int quantity) {
+		for (int i = 0; i < quantity; i++) {
+			String url = newsURLList.get(i);
+			driver.get(url);
+			System.out.println(getNews(url));
+		}
+	}
+
+	public String getNews(String newsURL) {
+		WebElement newsHeader = driver.findElement(newsHeaderBy);
+		WebElement newsDate = newsHeader.findElement(newsDateBy);
+		WebElement newsContent = driver.findElement(newsContentBy);
+		String news = newsURL + "\n" +
+				newsHeader.findElement(newsTitleBy).getText() + "\n" + 
+				newsHeader.findElement(newsSubTitleBy).getText() + "\n"+ 
+				newsHeader.findElement(newsAuthorBy).getText() + "\n" + 
+				getFormatedNewsDateTime(newsDate) + "\n" + 
+				getFormatedNewsContent(newsContent) + "\n";
+
+		return news;
 	}
 
 	public String getFormatedNewsContent(WebElement newsContent) {
 		String content = newsContent.getText();
-		
+
 		int beginIndex = 0;
 		int lastIndexOf = content.lastIndexOf("\n");
-		content = content.substring(beginIndex, lastIndexOf)
-                         .replaceAll(NEWS_CONTENT_PUBLICITY_TERM, "")
-				         .replaceAll("\n", "");
+		content = content.substring(beginIndex, lastIndexOf).replaceAll(NEWS_CONTENT_PUBLICITY_TERM, "")
+				.replaceAll("\n", "");
 		return content;
 	}
 
